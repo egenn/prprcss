@@ -1,0 +1,11 @@
+Package: prprcss
+Type: Package
+Title: Biomedical Image Preprocess
+Version: 0.1.0
+Authors@R: person(given = "Efstathios D.", family = "Gennatas", role = c("aut", "cre"), email = "gennatas@lambdamd.org", comment = c(ORCID = "0000-0001-9280-3609"))
+Maintainer: Efstathios D. Gennatas <gennatas@lambdamd.org>
+Description: MRI volume preprocessing using ANTsR and ANTsRNet
+License: All rights reserved
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
