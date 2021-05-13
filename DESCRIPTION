@@ -7,5 +7,6 @@ Maintainer: Efstathios D. Gennatas <gennatas@lambdamd.org>
 Description: MRI volume preprocessing using ANTsR and ANTsRNet
 License: All rights reserved
 Encoding: UTF-8
+Imports: rtemis, data.table, ANTsR
 LazyData: true
 RoxygenNote: 7.1.1
