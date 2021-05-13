@@ -10,10 +10,10 @@ prprcss.version <- packageVersion("prprcss")
                                Sys.getenv("USER"), "\n  https://lambdamd.org"))
 }
 
-#' \pkg{prprcs}: Biomedical Image Preprocessing
+#' \pkg{prprcss}: Biomedical Image Preprocessing
 #'
 #' @docType package
-#' @name prprcs-package
+#' @name prprcss-package
 #' @import graphics grDevices methods stats utils rtemis
 
 NULL

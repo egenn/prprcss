@@ -21,6 +21,7 @@
 #' @param verbose Logical: If TRUE, print messages to console
 #' @param vistrace Integer 0-2: If > 0, print plots of images at different preprocessing stages
 #' @param vistrace_slices Integer: How many slices to plot if \code{vistrace > 0}
+#'
 #' @author E.D. Gennatas
 #' @export
 
@@ -139,7 +140,7 @@ preprocess_t1 <- function(x,
         ANTsRCore::antsImageWrite(image = t1_brain_Wn,
             filename = paste0(outdir, "/", id[i], "_rsWn.nii.gz"))
 
-        ## Segmentation ====
+        ## Atropos Segmentation ====
         t1_3class <- atropos(a = t1_brain,
                         x = t1_brain_mask,
                         i = atropos_initialization,
@@ -161,9 +162,8 @@ preprocess_t1 <- function(x,
             verbose = verbose)
 
         if (vistrace > 0) {
-            # plot(gmW, axis = 3, slices = vistrace_slices,
-            #     title.img = "Warped GM", title.line = -3)
             plot(gmW, axis = 3,
+                 # slices = vistrace_slices,
                 title.img = "Warped GM", title.line = -3)
         }
 
@@ -173,4 +173,4 @@ preprocess_t1 <- function(x,
 
     } # /loop through input images
 
-}
+} # prprcss::preprocess_t1
