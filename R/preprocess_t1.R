@@ -43,9 +43,7 @@ preprocess_t1 <- function(x,
             system.file("data", "sri24_brain.nii.gz", package = "prprcss"))
         template_brain_name <- "sri24"
     } else {
-        if (is.character(template_brain)) {
-            template_brain <- ANTsRCore::antsImageRead(template_brain)
-        }
+        template_brain <- ANTsRCore::check_ants(template_brain)
     }
 
     for (i in seq_along(x)) {
