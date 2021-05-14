@@ -14,6 +14,6 @@ prprcss.version <- packageVersion("prprcss")
 #'
 #' @docType package
 #' @name prprcss-package
-#' @import graphics grDevices methods stats utils rtemis
+#' @import graphics grDevices methods stats utils rtemis data.table ANTsR
 
 NULL
