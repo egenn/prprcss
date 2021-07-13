@@ -29,10 +29,11 @@ preprocess_t1 <- function(x,
                           id = NULL,
                           winsorize_prob = c(.01, .99),
                           template_brain = NULL,
-                          transform_type = "SyN",
+                          transform_type = "antsRegistrationSyN[s]",
                           atropos_initialization = "KMeans[3]",
                           atropos_mrf = "[0,1x1x1]",
                           atropos_convergence = "[3,0]",
+                          do_warpgm = FALSE,
                           outdir = NULL,
                           verbose = TRUE,
                           vistrace = 0,
@@ -40,12 +41,13 @@ preprocess_t1 <- function(x,
 
     if (is.null(template_brain)) {
         template_brain <- ANTsRCore::antsImageRead(
-            system.file("data", "sri24_brain.nii.gz", package = "prprcss"))
-        template_brain_name <- "sri24"
+            system.file("data", "antsmni.nii.gz", package = "prprcss"))
+            template_brain_name <- "mni"
     } else {
         template_brain <- ANTsRCore::check_ants(template_brain)
+        template_brain_name <- filename(template_brain@filename)
     }
-
+    
     for (i in seq_along(x)) {
 
         ## Read image ====
@@ -54,23 +56,14 @@ preprocess_t1 <- function(x,
         .id <- if (is.null(id[i])) filename(t1@filename) else id[i]
 
         # Output directory
-        if (is.null(outdir)) outdir <- paste0(dirname(x[i]), "/preprocess_t1")
+        if (is.null(outdir)) {
+            outdir <- file.path(dirname(x[i]), "preprocess_t1")
+        } else {
+            outdir <- normalizePath(outdir)
+        }
 
         if (vistrace > 0) {
             plot(t1, axis = 3, slices = vistrace_slices, title.img = "Raw T1")
-        }
-
-        ## Winsorize ====
-        quantiles <- quantile(t1, winsorize_prob)
-        if (verbose) {
-            msg(paste0("Winsorizing: low = ",
-                quantiles[1], ", high = ", quantiles[2]))
-        }
-        t1[t1 < quantiles[1]] <- quantiles[1]
-        t1[t1 > quantiles[2]] <- quantiles[2]
-        if (vistrace > 1) {
-            plot(t1, axis = 3, slices = vistrace_slices,
-                title.img = "Winsorized T1", title.line = -3)
         }
 
         ## N4 bias correction ====
@@ -89,6 +82,7 @@ preprocess_t1 <- function(x,
             plot(t1_brain_mask, axis = 3, slices = vistrace_slices,
                 title.img = "Brain mask", title.line = -3)
         }
+        
         t1_brain <- t1 * t1_brain_mask
         if (vistrace > 0) {
             plot(t1_brain, axis = 3, slices = vistrace_slices,
@@ -96,15 +90,26 @@ preprocess_t1 <- function(x,
         }
 
         ## Syn to template brain ====
+        transform_type_name <- if (grepl("antsRegistrationSyN", transform_type)) {
+            "SyN"
+        } else {
+            transform_type
+        }
         dir.create(outdir, showWarnings = FALSE)
         t1_brain_to_template_brain <- ANTsRCore::antsRegistration(
             fixed = template_brain,
             moving = t1_brain,
             typeofTransform = transform_type,
-            outprefix = paste0(outdir, "/", .id, "_brain_to_",
-                template_brain_name, "_", transform_type),
+            outprefix = file.path(outdir, paste0(.id, "_brain_to_",
+                template_brain_name, "_", transform_type_name)),
             printArgs = verbose,
             verbose = verbose)
+# > t1_brain_to_template_brain$invtransforms
+# [1] "/tmp/Rtmp7NkZw9/file2faf3ba99bfc0GenericAffine.mat" 
+# [2] "/tmp/Rtmp7NkZw9/file2faf3ba99bfc1InverseWarp.nii.gz"
+# > t1_brain_to_template_brain$fwdtransforms
+# [1] "/tmp/Rtmp7NkZw9/file2faf3ba99bfc1Warp.nii.gz"      
+# [2] "/tmp/Rtmp7NkZw9/file2faf3ba99bfc0GenericAffine.mat"
 
         ## Apply transformation ====
         t1_brain_W <- ANTsRCore::antsApplyTransforms(
@@ -125,7 +130,7 @@ preprocess_t1 <- function(x,
 
         ## +++Write rsWn to file ====
         ANTsRCore::antsImageWrite(image = t1_brain_Wn,
-            filename = paste0(outdir, "/", .id, "_rsWn.nii.gz"))
+            filename = file.path(outdir, paste0(.id, "_rsWn.nii.gz")))
 
         ## Atropos Segmentation ====
         t1_3class <- atropos(a = t1_brain,
@@ -141,22 +146,29 @@ preprocess_t1 <- function(x,
                 title.img = "Native GM", title.line = -3)
         }
 
-        ## Apply transformation to GM ====
-        gmW <- ANTsRCore::antsApplyTransforms(
-            fixed = template_brain,
-            moving = t1_3class$probabilityimages[[2]],
-            transformlist = t1_brain_to_template_brain$fwdtransforms,
-            verbose = verbose)
+        ## +++Write native GM to file ====
+        ANTsRCore::antsImageWrite(image = t1_3class$probabilityimages[[2]],
+            filename = file.path(outdir, paste0(.id, "_rsGM.nii.gz")))
 
-        if (vistrace > 0) {
-            plot(gmW, axis = 3,
-                 # slices = vistrace_slices,
-                 title.img = "Warped GM", title.line = -3)
+        ## Warp GM ====
+        if (do_warpgm) {
+            ## Apply transformation to GM ====
+            gmW <- ANTsRCore::antsApplyTransforms(
+                fixed = template_brain,
+                moving = t1_3class$probabilityimages[[2]],
+                transformlist = t1_brain_to_template_brain$fwdtransforms,
+                verbose = verbose)
+
+            if (vistrace > 0) {
+                plot(gmW, axis = 3,
+                    # slices = vistrace_slices,
+                    title.img = "Warped GM", title.line = -3)
+            }
+
+            ## +++Write gmW to file ====
+            ANTsRCore::antsImageWrite(image = gmW,
+                filename = file.path(outdir, paste0(.id, "_rsGMW.nii.gz")))
         }
-
-        ## +++Write gmW to file ====
-        ANTsRCore::antsImageWrite(image = gmW,
-            filename = paste0(outdir, "/", .id, "_rsGMW.nii.gz"))
 
     } # /loop through input images
 
