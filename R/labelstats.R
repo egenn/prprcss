@@ -11,6 +11,8 @@
 #' which would exclude the first label that is commonly the background. Set to NULL to not exclude
 #' any labels
 #' @param verbose Logical: If TRUE, print messages to console. Default = TRUE
+#' 
+#' @author E.D. Gennatas
 #' @export
 
 labelstats <- function(x, labeled_nifti,

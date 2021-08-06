@@ -6,9 +6,14 @@
 #'
 #' @param x Character vector of nifti paths OR list of \code{antsImage} objects in native space
 #' @param labeled_nifti Character of path to labeled nifti OR \code{antsImage} object
-#' @param labelkey Character vector: Label names
-#' @param exclude_label_index Integer vector: 1-based index of labels to exclude. Default = 1,
-#' which would exclude the first label that is commonly the background. Set to NULL to not exclude
+#' @param labelkey Data frame with two columns: "LabelID" (integer) and "LabelName" (character).
+#' If not NULL, output will contain all labels in \code{labelkey} whether they have values or not,
+#' and will exclude any labeld found in \code{labeled_nifti} but not in \code{labelkey}, this
+#' may often be the background label (commonly LabelID 0), for example. Best to include a \code{labelkey}
+#' if available.
+#' @param exclude_label_index Integer vector: 1-based index of labels to exclude. Default = NULL,
+#' i.e. do not exclude any labels. May be best to include a \code{labelkey} that excludes unwanted
+#' labels (e.g. the background)
 #' any labels
 #' @param verbose Logical: If TRUE, print messages to console. Default = TRUE
 #' 
@@ -17,15 +22,16 @@
 
 labelstats_native <- function(x, labeled_nifti,
                               labelkey = NULL,
-                              exclude_label_index = 1,
+                              exclude_label_index = NULL,
                               do_save_native_label = TRUE,
                               verbose = TRUE) {
 
   labeled_nifti <- ANTsRCore::check_ants(labeled_nifti)
   labeled_nifti_filename <- filename(labeled_nifti@filename)
-  if (is.null(labelkey)) {
-    labelkey <- paste0("Label_", seq_len(length(unique(labeled_nifti))) - 1)
-  }
+  # if (is.null(labelkey)) {
+  #   labelkey <- paste0("Label_", seq_len(length(unique(labeled_nifti))) - 1)
+  # }
+  nlabels <- length(unique(labeled_nifti))
   nimgs <- length(x)
   # init id vector
   id <- character(nimgs)
@@ -62,19 +68,40 @@ labelstats_native <- function(x, labeled_nifti,
                 image = labeled_nifti_native_masked,
                 filename = native_label_path)
           if (file.exists(native_label_path)) {
-            
+            msg("Saved", native_label_path)
+          } else {
+            warning("Failed to save", native_label_path)
           }
         }
+    } else {
+      labeled_nifti_native_masked <- ANTsRCore::check_ants(native_label_path)
     }
-    .ls[[i]] <- ANTsRCore::labelStats(img, labeled_nifti)
+    .ls[[i]] <- ANTsRCore::labelStats(img, labeled_nifti_native_masked)
   }
   names(.ls) <- id
-
-  dat <- lapply(seq_along(.ls),
-                function(i) data.table(ID = id[i], .ls[[i]]))
-  dat <- do.call(rbind, dat)
-  dat_wide <- dcast(dat, ID ~ LabelValue, value.var = "Mean")
-  names(dat_wide)[2:ncol(dat_wide)] <- labelkey
+  
+  if (verbose) msg("Merging labelstats of", nimgs, "volumes...")
+  # Some labels may be missing from native space:
+  # Fix by merging with all unique Label IDs before rbinding
+  dat <- data.table(LabelID = sort(unique(labeled_nifti)))
+  if (!is.null(labelkey)) {
+      if (all(c("LabelID", "LabelName") %in% names(labelkey))) {
+          dat <- merge(dat, labelkey, by = "LabelID")
+      }
+  }
+  datlabels <- lapply(.ls, function(l) 
+      merge(dat, l, by.x = "LabelID", by.y = "LabelValue", all = TRUE))
+  datlabels <- lapply(seq_along(datlabels),
+                function(i) data.table(ImageID = id[i], datlabels[[i]]))
+  datlabels <- do.call(rbind, datlabels)
+  if (is.null(labelkey)) {
+      dat_wide <- dcast(datlabels, ImageID ~ LabelID,
+      value.var = c("Mean", "Volume"))
+  } else {
+      dat_wide <- dcast(datlabels, ImageID ~ LabelID + LabelName,
+      value.var = c("Mean", "Volume"))
+  }
+  
   if (!is.null(exclude_label_index)) {
     dat_wide <- dat_wide[, -c(exclude_label_index + 1)]
   }

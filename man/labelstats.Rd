@@ -28,3 +28,6 @@ any labels}
 \description{
 Get label stats for a list of images using \pkg{ANTsR}
 }
+\author{
+E.D. Gennatas
+}

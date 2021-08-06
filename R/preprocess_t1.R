@@ -37,8 +37,12 @@ preprocess_t1 <- function(x,
                           outdir = NULL,
                           verbose = TRUE,
                           vistrace = 0,
-                          vistrace_slices = c(90, 130, 170)) {
+                          vistrace_slices = c(90, 130, 170),
+                          itk_cores = NULL) {
 
+    if (!is.null(itk_cores)) {
+        Sys.setenv(ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS = itk_cores)
+    }
     if (is.null(template_brain)) {
         template_brain <- ANTsRCore::antsImageRead(
             system.file("data", "antsmni.nii.gz", package = "prprcss"))
