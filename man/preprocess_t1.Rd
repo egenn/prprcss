@@ -17,7 +17,8 @@ preprocess_t1(
   outdir = NULL,
   verbose = TRUE,
   vistrace = 0,
-  vistrace_slices = c(90, 130, 170)
+  vistrace_slices = c(90, 130, 170),
+  itk_cores = NULL
 )
 }
 \arguments{
