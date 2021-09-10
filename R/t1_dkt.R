@@ -1,4 +1,4 @@
-# dkt.R
+# t1_dkt.R
 # ::prprcss::
 # E.D. Gennatas lambdamd.org
 
@@ -15,15 +15,15 @@
 #' 
 #' @export
 
-dkt <- function(x,
-                doPreprocessing = TRUE,
-                returnProbabilityImages = FALSE,
-                writeseg = TRUE,
-                preprocdir = file.path(dirname(x), "preprocess_t1"),
-                verbose = TRUE) {
+t1_dkt <- function(x,
+                   doPreprocessing = TRUE,
+                   returnProbabilityImages = FALSE,
+                   writeseg = TRUE,
+                   preprocdir = file.path(dirname(x), "preprocess_t1"),
+                   verbose = TRUE) {
 
     dkt <- ANTsRNet::desikanKillianyTourvilleLabeling(
-            t1 = ANTsRCore::check_ants(x)
+            t1 = ANTsRCore::check_ants(x),
             doPreprocessing = doPreprocessing,
             returnProbabilityImages = returnProbabilityImages,
             verbose = verbose)

@@ -3,6 +3,7 @@
 export(labelstats)
 export(labelstats_native)
 export(preprocess_t1)
+export(t1_dkt)
 export(which_preprocess)
 import(ANTsR)
 import(data.table)
