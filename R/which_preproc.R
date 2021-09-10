@@ -19,9 +19,15 @@ which_preprocess <- function(root_dir,
                              target_file_suffix = "rsGM.nii.gz",
                              verbose = TRUE) {
     
-    ids_available <- gsub(raw_suffix, "", dir(root_dir, raw_suffix))
-    ids_preprocessed <- gsub("_.*", "",
-        dir(file.path(root_dir, preprocess_dir), target_file_suffix))
+    # ids_available <- gsub(raw_suffix, "", dir(root_dir, raw_suffix))
+    paths_available <- dir(root_dir, raw_suffix)
+    # ids_available <- gsub("_.*", "", dir(root_dir, raw_suffix))
+    paths_preprocessed <- dir(file.path(root_dir, preprocess_dir), target_file_suffix)
+    # ids_preprocessed <- gsub("_.*", "",
+    #     dir(file.path(root_dir, preprocess_dir), target_file_suffix))
+    paths_to_preprocess <- paths_available[!gsub(raw_suffix, "", paths_available) %in% paths_preprocessed]
+    
+    mgetnames(paths_preprocessed, gsub(raw_suffix, "", paths_available))
     ids_topreprocess <- ids_available[!ids_available %in% ids_preprocessed]
     n_available <- length(ids_available)
     n_preprocessed <- length(ids_preprocessed)
