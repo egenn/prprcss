@@ -1,6 +1,7 @@
 # labelstats_native.R
 # ::prprcss::
 # 2021 E.D. Gennatas lambdamd.org
+# add do_save_csv = TRUE
 
 #' Get label stats for a list of images using \pkg{ANTsR}
 #'
@@ -14,7 +15,6 @@
 #' @param exclude_label_index Integer vector: 1-based index of labels to exclude. Default = NULL,
 #' i.e. do not exclude any labels. May be best to include a \code{labelkey} that excludes unwanted
 #' labels (e.g. the background)
-#' any labels
 #' @param verbose Logical: If TRUE, print messages to console. Default = TRUE
 #' 
 #' @author E.D. Gennatas
@@ -24,6 +24,7 @@ labelstats_native <- function(x, labeled_nifti,
                               labelkey = NULL,
                               exclude_label_index = NULL,
                               do_save_native_label = TRUE,
+                              # do_save_csv = TRUE,
                               verbose = TRUE) {
 
   labeled_nifti <- ANTsRCore::check_ants(labeled_nifti)
@@ -103,6 +104,7 @@ labelstats_native <- function(x, labeled_nifti,
   }
   
   if (!is.null(exclude_label_index)) {
+    # 1st column is ImageID, labels start at 2nd column
     dat_wide <- dat_wide[, -c(exclude_label_index + 1)]
   }
   dat_wide

@@ -7,20 +7,28 @@
 labelstats(
   x,
   labeled_nifti,
-  labelkey = NULL,
-  exclude_label_index = 1,
+  labelkey,
+  include_labels = c("labelkey", "img", "both"),
+  exclude_label_index = NULL,
+  mask_label_by_img = TRUE,
+  do_save_masked_label = FALSE,
   verbose = TRUE
 )
 }
 \arguments{
 \item{x}{Character vector of nifti paths OR list of \code{antsImage} objects}
 
-\item{labeled_nifti}{Character of path to labeled nifti OR \code{antsImage} object}
+\item{labeled_nifti}{Character of path to labeled nifti OR \code{antsImage} object in same space as \code{x}}
 
-\item{labelkey}{Character vector: Label names}
+\item{labelkey}{Character or Data frame: Either path to CSV or data.frame containing two columns: 
+"LabelID" (integer) and "LabelName" (character).
+Output will contain all labels in \code{labelkey} whether they have values or not,
+and will exclude any labels found in \code{labeled_nifti} but not in \code{labelkey}, this
+may often be the background label (commonly LabelID 0), for example.}
 
-\item{exclude_label_index}{Integer vector: 1-based index of labels to exclude. Default = 1,
-which would exclude the first label that is commonly the background. Set to NULL to not exclude
+\item{exclude_label_index}{Integer vector: 1-based index of labels to exclude. Default = NULL,
+i.e. do not exclude any labels. May be best to include a \code{labelkey} that excludes unwanted
+labels (e.g. the background)
 any labels}
 
 \item{verbose}{Logical: If TRUE, print messages to console. Default = TRUE}

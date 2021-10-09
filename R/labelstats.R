@@ -21,10 +21,16 @@
 #' @export
 
 labelstats <- function(x, labeled_nifti,
-                              labelkey = NULL,
-                              exclude_label_index = NULL,
-                              do_save_native_label = TRUE,
-                              verbose = TRUE) {
+                       labelkey,
+                       include_labels = c("labelkey", "img", "both"),
+                       exclude_label_index = NULL,
+                       mask_label_by_img = TRUE,
+                       do_save_masked_label = FALSE,
+                       verbose = TRUE) {
+
+  # Arguments ====
+  include_labels <- match.arg(include_labels)
+  stopifnot(all(c("LabelID", "LabelName") %in% names(labelkey)))
 
   labeled_nifti <- ANTsRCore::check_ants(labeled_nifti)
   labeled_nifti_filename <- filename(labeled_nifti@filename)
@@ -32,11 +38,13 @@ labelstats <- function(x, labeled_nifti,
       stopifnot(file.exists(labelkey))
       labelkey <- read.csv(labelkey)
   }
-  stopifnot(colnames(labelkey) == c("LabelID", "LabelName"))
-  nlabels <- nrow(labelkey)
+
+  nlabels <- NROW(labelkey)
   nimgs <- length(x)
+
   # init id vector
   id <- character(nimgs)
+
   # init labelstats list
   .ls <- vector("list", nimgs)
 
@@ -47,66 +55,61 @@ labelstats <- function(x, labeled_nifti,
     name <- gsub("_.*", "", filename(img@filename))
     id[i] <- filename(img@filename)
     dirpath <- dirname(x[i])
-    # native label path
-    native_label_path <- file.path(dirpath, paste0(name, "_", labeled_nifti_filename, "_nativeMasked.nii.gz"))
-    if (!file.exists(native_label_path)) {
-      affine <- file.path(dirpath, dir(dirpath, paste0(name, ".*0GenericAffine")))
-      warp <- file.path(dirpath, dir(dirpath, paste0(name, ".*1InverseWarp")))
-        labeled_nifti_native <- ANTsRCore::antsApplyTransforms(
-            fixed = img,
-            moving = labeled_nifti,
-            transformlist = c(affine, warp),
-            interpolator = "genericLabel",
-            verbose = verbose)
-        
-        # mask native label by native GM
-        native_mask <- ANTsRCore::getMask(img, cleanup = 0)
-        labeled_nifti_native_masked <- labeled_nifti_native * native_mask
-        
-        if (do_save_native_label) {
+    
+    # mask label by img
+    if (mask_label_by_img) {
+        mask <- ANTsRCore::getMask(img, cleanup = 0)
+        labeled_nifti_masked <- labeled_nifti * mask
+
+        if (do_save_masked_label) {
           ## +++Write native labels to file ====
-          if (verbose) msg("Writing masked native label file to disk...")
+          if (verbose) msg("Writing masked label file to disk...")
+            label_path <- file.path(dirpath, paste0(name, "_", labeled_nifti_filename, "_masked.nii.gz"))
             ANTsRCore::antsImageWrite(
-                image = labeled_nifti_native_masked,
-                filename = native_label_path)
-          if (file.exists(native_label_path)) {
-            msg("Saved", native_label_path)
+                image = labeled_nifti_masked,
+                filename = label_path)
+          if (file.exists(label_path)) {
+            msg("Saved", label_path)
           } else {
-            warning("Failed to save", native_label_path)
+            warning("Failed to save", label_path)
           }
         }
+        .ls[[i]] <- ANTsRCore::labelStats(img, labeled_nifti_masked)
     } else {
-      labeled_nifti_native_masked <- ANTsRCore::check_ants(native_label_path)
+      .ls[[i]] <- ANTsRCore::labelStats(img, labeled_nifti)
     }
-    .ls[[i]] <- ANTsRCore::labelStats(img, labeled_nifti_native_masked)
   }
   names(.ls) <- id
   
   if (verbose) msg("Merging labelstats of", nimgs, "volumes...")
-  # Some labels may be missing from native space:
+  # Some labels may be missing from individual imgs:
   # Fix by merging with all unique Label IDs before rbinding
   dat <- data.table(LabelID = sort(unique(labeled_nifti)))
-  if (!is.null(labelkey)) {
-      if (all(c("LabelID", "LabelName") %in% names(labelkey))) {
-          dat <- merge(dat, labelkey, by = "LabelID")
+  dat <- if (include_labels == "labelkey") {
+        merge(dat, labelkey, by = "LabelID", all.x = FALSE, all.y = TRUE)
+      } else if (include_labels == "img") {
+        merge(dat, labelkey, by = "LabelID", all.x = TRUE, all.y = FALSE)
+      } else {
+        merge(dat, labelkey, by = "LabelID", all.x = TRUE, all.y = TRUE)
       }
-  }
+
   datlabels <- lapply(.ls, function(l) 
-      merge(dat, l, by.x = "LabelID", by.y = "LabelValue", all = TRUE))
+      merge(dat, l, by.x = "LabelID", by.y = "LabelValue", 
+            all.x = TRUE, all.y = FALSE))
+
+  # Add ImageID
+  # todo: in-place append to 1st column
   datlabels <- lapply(seq_along(datlabels),
                 function(i) data.table(ImageID = id[i], datlabels[[i]]))
   datlabels <- do.call(rbind, datlabels)
-  if (is.null(labelkey)) {
-      dat_wide <- dcast(datlabels, ImageID ~ LabelID,
-      value.var = c("Mean", "Volume"))
-  } else {
-      dat_wide <- dcast(datlabels, ImageID ~ LabelID + LabelName,
-      value.var = c("Mean", "Volume"))
-  }
+  # Outputs ImageID, {Mean, Volume}_LabelName: 1 + 2xNlabels
+  dat_wide <- dcast(datlabels, ImageID ~ LabelID + LabelName,
+          value.var = c("Mean", "Volume"))
   
   if (!is.null(exclude_label_index)) {
+    # 1st column is ImageID, labels start at 2nd column
     dat_wide <- dat_wide[, -c(exclude_label_index + 1)]
   }
   dat_wide
 
-} # prprcss::labelstats_native
+} # prprcss::labelstats

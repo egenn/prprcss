@@ -26,8 +26,7 @@ if available.}
 
 \item{exclude_label_index}{Integer vector: 1-based index of labels to exclude. Default = NULL,
 i.e. do not exclude any labels. May be best to include a \code{labelkey} that excludes unwanted
-labels (e.g. the background)
-any labels}
+labels (e.g. the background)}
 
 \item{verbose}{Logical: If TRUE, print messages to console. Default = TRUE}
 }

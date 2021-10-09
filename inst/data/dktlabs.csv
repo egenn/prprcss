@@ -2,12 +2,12 @@ LabelID,LabelName
 0,background
 4,L_lateral_ventricle
 5,L_inferior_lateral_ventricle
-6,L_cerebellem_exterior
+6,L_cerebellum_exterior
 7,L_cerebellum_white_matter
 10,L_thalamus_proper
 11,L_caudate
 12,L_putamen
-13,L_pallidium
+13,L_pallidum
 15,4th_ventricle
 16,brain_stem
 17,L_hippocampus
@@ -24,7 +24,7 @@ LabelID,LabelName
 49,R_thalamus_proper
 50,R_caudate
 51,R_putamen
-52,R_palladium
+52,R_pallidum
 53,R_hippocampus
 54,R_amygdala
 57,R_lesion
@@ -32,7 +32,7 @@ LabelID,LabelName
 60,R_ventral_DC
 62,R_vessel
 72,5th_ventricle
-85,optic_chasm
+85,optic_chiasm
 91,L_basal_forebrain
 92,R_basal_forebrain
 630,cerebellar_vermal_lobules_I_V
