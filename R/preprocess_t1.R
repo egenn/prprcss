@@ -25,7 +25,7 @@
 
 preprocess_t1 <- function(x,
                           id = NULL,
-                          intensityTruncation = c(0.025, 0.975, 256)
+                          intensityTruncation = c(0.025, 0.975, 256),
                           template_brain = NULL,
                           transform_type = "antsRegistrationSyN[s]",
                           atropos_initialization = "KMeans[3]",
