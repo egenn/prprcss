@@ -110,8 +110,8 @@ mplot3.laterality <- function(x, regionnames,
   for (i in seq_along(regionnames)) {
     vleft <- x[[grep(paste0(regionnames[i], "_L$"), names(x))]]
     vright <- x[[grep(paste0(regionnames[i], "_R$"), names(x))]]
-    vleft.summary <- do.call(summary.fn, list(vleft))
-    vright.summary <- do.call(summary.fn, list(vright))
+    vleft.summary <- do.call(summary.fn, c(list(vleft), na.rm = TRUE))
+    vright.summary <- do.call(summary.fn, c(list(vright), na.rm = TRUE))
     segments(x0 = 2*i - 1.2, x1 = 2*i + .2, y0 = vleft, y1 = vright,
              lty = lty, lwd = lwd, col = line.col)
     arrows(x0 = 2*i - 1.2, x1 = 2*i + .2,
