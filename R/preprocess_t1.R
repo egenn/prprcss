@@ -53,7 +53,7 @@ preprocess_t1 <- function(x,
     for (i in seq_along(x)) {
 
         ## Read image ====
-        # if (verbose) msg0("Reading image ", x[i], "...")
+        if (verbose) cat("Reading image ", x[i], "...")
         t1 <- ANTsRCore::check_ants(x[i])
         .id <- if (is.null(id[i])) filename(t1@filename) else id[i]
 
@@ -69,7 +69,7 @@ preprocess_t1 <- function(x,
         }
 
         ## N4 bias correction ====
-        if (verbose) msg("Running N4 bias correction...")
+        if (verbose) cat("Running N4 bias correction...")
         t1 <- ANTsR::abpN4(t1, 
                 intensityTruncation = intensityTruncation,
                 verbose = verbose)
@@ -79,6 +79,7 @@ preprocess_t1 <- function(x,
         }
 
         ## Brain extraction ====
+        if (verbose) cat("Performing brain extraction...")
         t1_brain_mask <- ANTsRNet::brainExtraction(t1, modality = "t1")
         # PR: input arg test warning
         t1_brain_mask <- ANTsRCore::getMask(t1_brain_mask, lowThresh = .5, highThresh = 1)
@@ -100,6 +101,7 @@ preprocess_t1 <- function(x,
             transform_type
         }
         dir.create(outdir, showWarnings = FALSE)
+        if (verbose) cat("Registering to template...")
         t1_brain_to_template_brain <- ANTsRCore::antsRegistration(
             fixed = template_brain,
             moving = t1_brain,
@@ -137,6 +139,7 @@ preprocess_t1 <- function(x,
             filename = file.path(outdir, paste0(.id, "_rsWn.nii.gz")))
 
         ## Atropos Segmentation ====
+        if (verbose) cat("Performing Atropos segmentation...")
         t1_3class <- atropos(a = t1_brain,
                              x = t1_brain_mask,
                              i = atropos_initialization,

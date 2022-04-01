@@ -7,7 +7,7 @@
 preprocess_t1(
   x,
   id = NULL,
-  winsorize_prob = c(0.01, 0.99),
+  intensityTruncation = c(0.025, 0.975, 256),
   template_brain = NULL,
   transform_type = "antsRegistrationSyN[s]",
   atropos_initialization = "KMeans[3]",
@@ -27,9 +27,7 @@ preprocess_t1(
 \item{id}{Character, vector: Names of volumes in \code{x}. Optional; if NULL, defaults to
 \code{basename(x)} if \code{x} is character, or names of list}
 
-\item{winsorize_prob}{Float, vector, length 2: Probabilities to define quantiles to winsorize
-image. Default = c(.01, .99), i.e. any values below the 1st percentile / aboe the 99th percentile
-will be set to the value corresponding to the 1st /99th percentile respectively.}
+\item{intensityTruncation}{iMath intensity truncation parameters}
 
 \item{template_brain}{Path to image or antsImage object for template brain, i.e. skull-stripped
 volume}

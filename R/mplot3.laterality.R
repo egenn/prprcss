@@ -4,7 +4,7 @@
 
 #' Laterality scatter plot
 #'
-#' @inheritParams mplot3.xy
+#' @inheritParams rtemis::mplot3.xy
 #' @param x data.frame or data.table which includes columns with ROI names ending in "_L" or "_R"
 #' @param regionnames Character, vector: Regions to plot. For example, if \code{regionnames}
 #' contains "Ant_Insula", \code{x} must contain columns \code{Ant_Insula_L} and \code{Ant_Insula_R}
