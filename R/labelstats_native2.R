@@ -48,7 +48,10 @@ labelstats_native2 <- function(
     id[i] <- filename(img@filename)
     dirpath <- dirname(x[i])
     # native label path
-    native_label_path <- file.path(dirpath, paste0(name, "_", labeled_nifti_filename, "_nativeMasked.nii.gz"))
+    native_label_path <- file.path(
+      dirpath,
+      paste0(name, "_", labeled_nifti_filename, "_nativeMasked.nii.gz")
+    )
     if (!file.exists(native_label_path)) {
       affine <- file.path(dirpath, dir(dirpath, paste0(name, ".*0GenericAffine")))
       warp <- file.path(dirpath, dir(dirpath, paste0(name, ".*1InverseWarp")))
