@@ -52,7 +52,7 @@ preprocess_t1 <- function(x,
     
     for (i in seq_along(x)) {
 
-        ## Read image ====
+        ## Read image ----
         if (verbose) cat("Reading image ", x[i], "...")
         t1 <- ANTsRCore::check_ants(x[i])
         .id <- if (is.null(id[i])) filename(t1@filename) else id[i]
@@ -68,7 +68,7 @@ preprocess_t1 <- function(x,
             plot(t1, axis = 3, slices = vistrace_slices, title.img = "Raw T1")
         }
 
-        ## N4 bias correction ====
+        ## 1. N4 bias correction ----
         if (verbose) cat("Running N4 bias correction...")
         t1 <- ANTsR::abpN4(t1, 
                 intensityTruncation = intensityTruncation,
@@ -78,7 +78,7 @@ preprocess_t1 <- function(x,
                 title.img = "N4-corrected T1", title.line = -3)
         }
 
-        ## Brain extraction ====
+        ## 2. Brain extraction ----
         if (verbose) cat("Performing brain extraction...")
         t1_brain_mask <- ANTsRNet::brainExtraction(t1, modality = "t1")
         # PR: input arg test warning
@@ -94,7 +94,7 @@ preprocess_t1 <- function(x,
                 title.img = "T1 brain", title.line = -3)
         }
 
-        ## Syn to template brain ====
+        ## 3. SyN to template brain ----
         transform_type_name <- if (grepl("antsRegistrationSyN", transform_type)) {
             "SyN"
         } else {
@@ -117,14 +117,14 @@ preprocess_t1 <- function(x,
 # [1] "/tmp/Rtmp7NkZw9/file2faf3ba99bfc1Warp.nii.gz"      
 # [2] "/tmp/Rtmp7NkZw9/file2faf3ba99bfc0GenericAffine.mat"
 
-        ## Apply transformation ====
+        ## 3b. Apply transformation ----
         t1_brain_W <- ANTsRCore::antsApplyTransforms(
             fixed = template_brain,
             moving = t1_brain,
             transformlist = t1_brain_to_template_brain$fwdtransforms,
             verbose = verbose)
 
-        ## Normalize ====
+        ## 4. Normalize ----
         t1_brain_Wn <- ANTsRCore::iMath(
             img = t1_brain_W,
             operation = "Normalize")
@@ -134,11 +134,11 @@ preprocess_t1 <- function(x,
                 title.img = "Warped, Normalized T1", title.line = -3)
         }
 
-        ## +++Write rsWn to file ====
+        ## +++Write rsWn to file ----
         ANTsRCore::antsImageWrite(image = t1_brain_Wn,
             filename = file.path(outdir, paste0(.id, "_rsWn.nii.gz")))
 
-        ## Atropos Segmentation ====
+        ## 6. Atropos Segmentation ----
         if (verbose) cat("Performing Atropos segmentation...")
         t1_3class <- atropos(a = t1_brain,
                              x = t1_brain_mask,
@@ -153,13 +153,13 @@ preprocess_t1 <- function(x,
                 title.img = "Native GM", title.line = -3)
         }
 
-        ## +++Write native GM to file ====
+        ## +++Write native GM to file ----
         ANTsRCore::antsImageWrite(image = t1_3class$probabilityimages[[2]],
             filename = file.path(outdir, paste0(.id, "_rsGM.nii.gz")))
 
-        ## Warp GM ====
+        ## Warp GM ----
         if (do_warpgm) {
-            ## Apply transformation to GM ====
+            ## Apply transformation to GM ----
             gmW <- ANTsRCore::antsApplyTransforms(
                 fixed = template_brain,
                 moving = t1_3class$probabilityimages[[2]],
@@ -172,7 +172,7 @@ preprocess_t1 <- function(x,
                     title.img = "Warped GM", title.line = -3)
             }
 
-            ## +++Write gmW to file ====
+            ## +++Write gmW to file ----
             ANTsRCore::antsImageWrite(image = gmW,
                 filename = file.path(outdir, paste0(.id, "_rsGMW.nii.gz")))
         }

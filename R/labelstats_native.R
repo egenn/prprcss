@@ -20,12 +20,13 @@
 #' @author E.D. Gennatas
 #' @export
 
-labelstats_native <- function(x, labeled_nifti,
-                              labelkey = NULL,
-                              exclude_label_index = NULL,
-                              do_save_native_label = TRUE,
-                              # do_save_csv = TRUE,
-                              verbose = TRUE) {
+labelstats_native <- function(
+    x, 
+    labeled_nifti,
+    labelkey = NULL,
+    exclude_label_index = NULL,
+    do_save_native_label = TRUE,
+    verbose = TRUE) {
 
   labeled_nifti <- ANTsRCore::check_ants(labeled_nifti)
   labeled_nifti_filename <- filename(labeled_nifti@filename)
@@ -39,7 +40,7 @@ labelstats_native <- function(x, labeled_nifti,
   # init labelstats list
   .ls <- vector("list", nimgs)
 
-  # labelStats ====
+  # labelStats ----
   for (i in seq_along(x)) {
     if (verbose) msg0("Working on image ", i, " of ", nimgs, "...")
     img <- ANTsRCore::check_ants(x[i])
@@ -47,7 +48,10 @@ labelstats_native <- function(x, labeled_nifti,
     id[i] <- filename(img@filename)
     dirpath <- dirname(x[i])
     # native label path
-    native_label_path <- file.path(dirpath, paste0(name, "_", labeled_nifti_filename, "_nativeMasked.nii.gz"))
+    native_label_path <- file.path(
+      dirpath,
+      paste0(name, "_", labeled_nifti_filename, "_nativeMasked.nii.gz")
+    )
     if (!file.exists(native_label_path)) {
       affine <- file.path(dirpath, dir(dirpath, paste0(name, ".*0GenericAffine")))
       warp <- file.path(dirpath, dir(dirpath, paste0(name, ".*1InverseWarp")))
@@ -63,7 +67,7 @@ labelstats_native <- function(x, labeled_nifti,
         labeled_nifti_native_masked <- labeled_nifti_native * native_mask
         
         if (do_save_native_label) {
-          ## +++Write native labels to file ====
+          ## +++Write native labels to file ----
           if (verbose) msg("Writing masked native label file to disk...")
             ANTsRCore::antsImageWrite(
                 image = labeled_nifti_native_masked,
