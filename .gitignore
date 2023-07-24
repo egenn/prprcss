@@ -1,8 +1,11 @@
+# dev
+dev/
+
 # macOS
 .DS_Store
 
-# dev
-dev/
+# VS Code
+*.code-workspace
 
 # jupyter
 .ipynb_checkpoints/

@@ -1,7 +1,8 @@
 Package: prprcss
 Type: Package
 Title: Preprocess Magnetic Resonance Volumes
-Version: 0.2.0
+Version: 0.2.2
+Date: 2023-07-23
 Authors@R: person(given = "Efstathios D.", family = "Gennatas", role = c("aut", "cre"), email = "gennatas@lambdamd.org", comment = c(ORCID = "0000-0001-9280-3609"))
 Maintainer: Efstathios D. Gennatas <gennatas@lambdamd.org>
 Description: MRI volume preprocessing using ANTsR and ANTsRNet
@@ -10,4 +11,4 @@ Encoding: UTF-8
 Imports: rtemis, data.table, ANTsR, ANTsRNet
 Depends: ANTsRCore
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
