@@ -44,7 +44,7 @@ labelstats_native <- function(
   for (i in seq_along(x)) {
     if (verbose) msg0("Working on image ", i, " of ", nimgs, "...")
     img <- ANTsRCore::check_ants(x[i])
-    name <- gsub("_.*", "", filename(img@filename))
+    name <- sub("_([^_]*)$", "", filename(img@filename))
     id[i] <- filename(img@filename)
     dirpath <- dirname(x[i])
     # native label path
@@ -94,10 +94,10 @@ labelstats_native <- function(
           dat <- merge(dat, labelkey, by = "LabelID")
       }
   }
-  datlabels <- lapply(.ls, function(l) 
+  datlabels <- lapply(.ls, \(l) 
       merge(dat, l, by.x = "LabelID", by.y = "LabelValue", all = TRUE))
   datlabels <- lapply(seq_along(datlabels),
-                function(i) data.table(ImageID = id[i], datlabels[[i]]))
+                \(i) data.table(ImageID = id[i], datlabels[[i]]))
   datlabels <- do.call(rbind, datlabels)
   if (is.null(labelkey)) {
       dat_wide <- dcast(datlabels, ImageID ~ LabelID,
@@ -109,7 +109,7 @@ labelstats_native <- function(
   
   if (!is.null(exclude_label_index)) {
     # 1st column is ImageID, labels start at 2nd column
-    dat_wide <- dat_wide[, -c(exclude_label_index + 1)]
+    dat_wide <- dat_wide[, - c(exclude_label_index + 1)]
   }
   dat_wide
 
