@@ -40,10 +40,6 @@ mplot3.laterality(
 \item{regionnames}{Character, vector: Regions to plot. For example, if \code{regionnames}
 contains "Ant_Insula", \code{x} must contain columns \code{Ant_Insula_L} and \code{Ant_Insula_R}}
 
-\item{main}{Character: Plot title}
-
-\item{ylab}{Character: y-axis label}
-
 \item{summary.fn}{Character: Name of function to summarize left and right values.
 Default = "median"}
 
@@ -66,34 +62,6 @@ Default = "median"}
 \item{lwd}{Float: Line width for individual lines. Default = .3}
 
 \item{ylim}{Float, vector, length 2: y-axis limits}
-
-\item{theme}{Character: "black", "blackgrid", "darkgrid", "white", "whitegrid", "lightgrid"
-Default = "lightgrid" if no default \code{"rt.fit"} is set using \code{options}.
-You can set a system-wide default in your \code{.Rprofile} by including a line like
-options(rt.theme = 'darkgrid')}
-
-\item{autolabel}{Vector to be used to generate autolabels when using \link[rtemis]{rtlayout} with
-\code{autolabel = TRUE}. Default = \code{letters}}
-
-\item{mar}{Float, vector, length 4: Margins; see \code{par("mar")}}
-
-\item{oma}{Float, vector, length 4: Outer margins; see \code{par("oma")}}
-
-\item{pty}{Character: "s" gives a square plot; "m" gives a plot that fills graphics device size. Default = "m"
-(See \code{par("pty")})}
-
-\item{palette}{Vector of colors, or Character defining a builtin palette - get options with
-\code{rtPalette()}}
-
-\item{par.reset}{Logical: If TRUE, reset \code{par} setting before exiting. Default = TRUE}
-
-\item{pdf.width}{Float: Width in inches for pdf output (if \code{filename} is set). Default = 6}
-
-\item{pdf.height}{Float: Height in inches for pdf output. Default = 6}
-
-\item{filename}{Character: Path to file to save plot. Default = NULL}
-
-\item{...}{Additional arguments to be passed to theme function}
 }
 \description{
 Laterality scatter plot

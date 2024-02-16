@@ -19,10 +19,13 @@ which_preprocess <- function(root_dir,
                              target_file_suffix = "rsGM.nii.gz",
                              verbose = TRUE) {
   ids_available <- gsub(raw_suffix, "", dir(root_dir, raw_suffix))
+  # gsub only the last occurence of "_.*"
   ids_preprocessed <- gsub(
-    "_.*", "",
-    dir(file.path(root_dir, preprocess_dir), target_file_suffix)
+    "_(?!(.|\n)*_).*", "",
+    dir(file.path(root_dir, preprocess_dir), target_file_suffix),
+    perl = TRUE
   )
+  
   ids_topreprocess <- ids_available[!ids_available %in% ids_preprocessed]
   n_available <- length(ids_available)
   n_preprocessed <- length(ids_preprocessed)
@@ -30,7 +33,7 @@ which_preprocess <- function(root_dir,
 
   msg0(n_preprocessed,
     " (", ddSci(n_preprocessed / n_available * 100, 1),
-    "%) preprocessed .:. ",
+    "%) preprocessed; ",
     n_topreprocess,
     " (", ddSci(n_topreprocess / n_available * 100, 1),
     "%) remaining to preprocess",
@@ -44,4 +47,4 @@ which_preprocess <- function(root_dir,
     ids_preprocessed = ids_preprocessed,
     ids_topreprocess = ids_topreprocess
   ))
-} # prprcss::which_preprocess
+}
