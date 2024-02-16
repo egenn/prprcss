@@ -62,8 +62,8 @@ labels2niftis <- function(datamat,
   # replaces each occurence of label with its corresponding result
   if (verbose) msg2("Starting cluster...")
   cluster <- makeCluster(n.cores)
-  on.exit(if (!is.null(cluster)) { stopCluster(cluster) })
-  datamat <- rbind(seq(NCOL(datamat)), datamat)
+  on.exit(if (!is.null(cluster)) stopCluster(cluster))
+  datamat <- rbind(seq_len(NCOL(datamat)), datamat)
   parApply(cl = cluster, datamat, 2, s.datacol2nii.g1,
            fnim = fnim, prefix = prefix, verbose = verbose)
   cluster <- NULL
