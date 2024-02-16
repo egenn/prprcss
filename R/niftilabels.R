@@ -10,12 +10,10 @@
 #' @export
 
 readseglabels <- function(x) {
-
   .labels <- read.table(x)
   colnames(.labels) <- c("LabelID", "LabelName", "R", "G", "B", "A")
   .labels
-
-}
+} # prprcss::readseglabels
 
 #' Convert nifti segmentation label file to itksnap-compatible label file
 #'
@@ -33,22 +31,25 @@ seglabels2itksnap <- function(x,
                               mesh = NULL,
                               filename = NULL,
                               verbose = TRUE) {
-
   .in <- readseglabels(x)
   if (is.null(visible)) visible <- c(0, rep(1, NROW(.in) - 1))
   if (is.null(mesh)) mesh <- c(0, rep(1, NROW(.in) - 1))
-  .out <- data.frame(IDX = .in$LabelID,
-                     R = .in$R,
-                     G = .in$G,
-                     B = .in$B,
-                     A = .in$A/255,
-                     VIS = visible,
-                     MSH = mesh,
-                     LABEL = .in$LabelName)
+  .out <- data.frame(
+    IDX = .in$LabelID,
+    R = .in$R,
+    G = .in$G,
+    B = .in$B,
+    A = .in$A / 255,
+    VIS = visible,
+    MSH = mesh,
+    LABEL = .in$LabelName
+  )
   if (!is.null(filename)) {
     writeLines(paste("#", paste(colnames(.out), collapse = " ")), file(filename))
-    write.table(.out, file = filename, append = T,
-                quote = T, row.names = FALSE, col.names = FALSE)
+    write.table(.out,
+      file = filename, append = T,
+      quote = T, row.names = FALSE, col.names = FALSE
+    )
     if (verbose) {
       if (file.exists(filename)) {
         msg2("Wrote", filename)
@@ -58,5 +59,4 @@ seglabels2itksnap <- function(x,
     }
   }
   invisible(.out)
-
-}
+} # prprcss::seglabels2itksnap

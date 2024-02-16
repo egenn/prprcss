@@ -27,7 +27,6 @@ labels2nii <- function(label.vals,
                        prefix,
                        datatype = "auto",
                        verbose = TRUE) {
-
   # Dependencies ----
   dependency_check("RNifti")
 
@@ -48,8 +47,10 @@ labels2nii <- function(label.vals,
   kl <- length(unique(c(labels)))
   # Check N label.vals is equal to N labels in labeledNifti
   if (k != kl - 1) {
-    stop("Supplied 'label.vals' is length", k, "but 'labeledNifti' contains", kl - 1,
-         "labels (plus background")
+    stop(
+      "Supplied 'label.vals' is length", k, "but 'labeledNifti' contains", kl - 1,
+      "labels (plus background"
+    )
   }
   if (verbose) msg2("Working on ", k, " labels...", sep = "")
 
@@ -70,5 +71,4 @@ labels2nii <- function(label.vals,
   outname <- paste0(prefix, "_label.vals", k, ".nii.gz")
   RNifti::writeNifti(fnim.array, outname, template = labelednim, datatype = datatype)
   if (verbose) msg2("Wrote labeled nifti", outname)
-
-} # rtemis::labels2nii
+} # prprcss::labels2nii

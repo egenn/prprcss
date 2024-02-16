@@ -70,4 +70,4 @@ labels2niftis <- function(datamat,
   if (verbose) msg2("labels2niftis cluster stopped.\n")
   if (verbose) msg2(date(), "::: labels2niftis", scriptVersion, "completed.\n")
 
-} # rtemis::labels2niftis
+} # prprcss::labels2niftis

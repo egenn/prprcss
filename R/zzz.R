@@ -5,9 +5,10 @@
 prprcss.version <- packageVersion("prprcss")
 
 .onAttach <- function(libname, pkgname) {
-
-  packageStartupMessage(paste0("  .:", pkgname, " ", prprcss.version, ": Welcome, ",
-                               Sys.getenv("USER"), "\n  https://lambdamd.org"))
+  packageStartupMessage(paste0(
+    "  .:", pkgname, " ", prprcss.version, ": Welcome, ",
+    Sys.getenv("USER"), "\n  https://lambdamd.org"
+  ))
 }
 
 #' \pkg{prprcss}: Biomedical Image Preprocessing

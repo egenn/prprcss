@@ -11,15 +11,14 @@
 #' which would exclude the first label that is commonly the background. Set to NULL to not exclude
 #' any labels
 #' @param verbose Logical: If TRUE, print messages to console. Default = TRUE
-#' 
+#'
 #' @author E.D. Gennatas
 #' @export
 
 labelstats1 <- function(x, labeled_nifti,
-                       labelkey = NULL,
-                       exclude_label_index = 1,
-                       verbose = TRUE) {
-
+                        labelkey = NULL,
+                        exclude_label_index = 1,
+                        verbose = TRUE) {
   labeled_nifti <- ANTsRCore::check_ants(labeled_nifti)
   if (is.null(labelkey)) {
     labelkey <- paste0("Label_", seq_len(length(unique(labeled_nifti))) - 1)
@@ -37,8 +36,10 @@ labelstats1 <- function(x, labeled_nifti,
   }
   names(.ls) <- id
 
-  dat <- lapply(seq_along(.ls),
-                function(i) data.table(ID = id[i], .ls[[i]]))
+  dat <- lapply(
+    seq_along(.ls),
+    function(i) data.table(ID = id[i], .ls[[i]])
+  )
   dat <- do.call(rbind, dat)
   dat_wide <- dcast(dat, ID ~ LabelValue, value.var = "Mean")
   names(dat_wide)[2:ncol(dat_wide)] <- labelkey
@@ -46,5 +47,4 @@ labelstats1 <- function(x, labeled_nifti,
     dat_wide <- dat_wide[, -c(exclude_label_index + 1)]
   }
   dat_wide
-
 } # prprcss::labelstats
